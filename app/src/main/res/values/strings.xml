@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Selection Translator</string>
+    <string name="permission_gate_title">Enable permissions</string>
+    <string name="permission_gate_body">To capture global text selection and show the translation overlay, enable accessibility and floating window access.</string>
+    <string name="permission_gate_ready_body">Accessibility and floating window access are ready.</string>
+    <string name="permission_gate_accessibility_label">Accessibility service</string>
+    <string name="permission_gate_overlay_label">Floating window</string>
+    <string name="permission_gate_enabled">Enabled</string>
+    <string name="permission_gate_disabled">Not enabled</string>
+    <string name="permission_gate_accessibility_action">Open accessibility</string>
+    <string name="permission_gate_overlay_action">Open overlay settings</string>
+    <string name="accessibility_service_name">Selection translator service</string>
+    <string name="accessibility_service_description">Capture selected text and trigger translation.</string>
 </resources>
