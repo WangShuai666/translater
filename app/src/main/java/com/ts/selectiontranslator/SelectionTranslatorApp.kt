@@ -18,6 +18,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.ts.selectiontranslator.core.permissions.PermissionState
 import com.ts.selectiontranslator.core.ui.AppTheme
 import com.ts.selectiontranslator.features.accessibility.SelectionAccessibilityService
+import com.ts.selectiontranslator.features.home.HomeScreen
 import com.ts.selectiontranslator.features.onboarding.PermissionGateScreen
 
 @Composable
@@ -45,11 +46,15 @@ fun SelectionTranslatorApp() {
             }
         }
 
-        PermissionGateScreen(
-            state = permissionState,
-            onRequestAccessibility = { context.openAccessibilitySettings() },
-            onRequestOverlay = { context.openOverlaySettings() },
-        )
+        if (permissionState.isReadyForGlobalSelection) {
+            HomeScreen()
+        } else {
+            PermissionGateScreen(
+                state = permissionState,
+                onRequestAccessibility = { context.openAccessibilitySettings() },
+                onRequestOverlay = { context.openOverlaySettings() },
+            )
+        }
     }
 }
 
