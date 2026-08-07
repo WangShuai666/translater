@@ -8,7 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessibilityNew
+import androidx.compose.material.icons.outlined.SmartDisplay
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,9 +40,29 @@ fun PermissionGateScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.permission_gate_primary_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        text = stringResource(R.string.permission_gate_primary_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
             Text(
                 text = stringResource(R.string.permission_gate_title),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
@@ -56,6 +82,7 @@ fun PermissionGateScreen(
                     stringResource(R.string.permission_gate_disabled)
                 },
                 actionLabel = stringResource(R.string.permission_gate_accessibility_action),
+                icon = Icons.Outlined.AccessibilityNew,
                 onAction = onRequestAccessibility,
             )
 
@@ -67,6 +94,7 @@ fun PermissionGateScreen(
                     stringResource(R.string.permission_gate_disabled)
                 },
                 actionLabel = stringResource(R.string.permission_gate_overlay_action),
+                icon = Icons.Outlined.SmartDisplay,
                 onAction = onRequestOverlay,
             )
         }
@@ -78,25 +106,39 @@ private fun PermissionRow(
     title: String,
     status: String,
     actionLabel: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     onAction: () -> Unit,
 ) {
-    Row(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = status,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        Button(onClick = onAction) {
-            Text(text = actionLabel)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = status,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Button(onClick = onAction) {
+                Text(text = actionLabel)
+            }
         }
     }
 }

@@ -1,41 +1,32 @@
-# Selection Translator
+# SelecT
 
-一款 Android 全局选中文字翻译工具。
+一款安卓全局选中翻译工具。
 
 ## 功能
-- 任意应用内选中文字后触发翻译
-- 原文不遮挡，译文独立浮层展示
-- 默认英译中
-- 联网优先，离线兜底
-- 国内翻译 API 适配
-- 历史、收藏、朗读、快捷入口
+- 在任意应用里选中文字后直接翻译
+- 原文保留，译文独立浮层显示，不遮挡原文
+- 默认英译中，优先接入国内翻译 API
+- 支持历史记录、收藏、离线模式和快捷入口
 
 ## 权限
 - 无障碍服务
 - 悬浮窗权限
 - 网络权限
 
-## 技术栈
-- Kotlin
-- Jetpack Compose
-- Room
-- coroutines
-- AccessibilityService
-
 ## 构建
 ```bash
-./gradlew assembleDebug
+gradlew.bat assembleDebug
 ```
 
 ## 测试
 ```bash
-./gradlew testDebugUnitTest
+gradlew.bat testDebugUnitTest
 ```
 
-## 目录
-- `app/` 应用主工程
-- `docs/` 设计与计划文档
-- `gradle/` Gradle 配置
+## 安装
+生成后安装 `app/build/outputs/apk/debug/app-debug.apk` 到手机即可。
 
-## 说明
-项目当前为可运行原型，后续会继续补强真实翻译接口、OCR 和离线包能力。
+## 目录
+- `app/` 应用代码
+- `docs/` 设计与说明
+- `gradle/` 构建配置
