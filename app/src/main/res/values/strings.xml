@@ -44,9 +44,9 @@
     <string name="permission_gate_title">权限设置</string>
     <string name="permission_gate_subtitle">这里的权限不会阻止你使用翻译功能，只是决定能自动到什么程度。</string>
     <string name="permission_gate_accessibility_label">无障碍服务</string>
-    <string name="permission_gate_accessibility_body">用于在其他应用里自动读取选中的文字。系统选中菜单里的“翻译”入口不依赖它，可以不开。</string>
+    <string name="permission_gate_accessibility_body">开启后，选中文字时会出现一个“译”按钮，点一下就能翻译。系统选中菜单里的“翻译”入口不依赖它，也可以不开。</string>
     <string name="permission_gate_overlay_label">悬浮窗权限</string>
-    <string name="permission_gate_overlay_body">用于显示译文浮层和悬浮球。建议开启，否则只能停留在 App 内手动翻译。</string>
+    <string name="permission_gate_overlay_body">用于显示译文浮层、悬浮球和快速翻译按钮。建议开启，否则只能使用系统菜单或 App 内手动翻译。</string>
     <string name="permission_gate_enabled">已开启</string>
     <string name="permission_gate_disabled">未开启</string>
     <string name="permission_gate_accessibility_action">去开启</string>
