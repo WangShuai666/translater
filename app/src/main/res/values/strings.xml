@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">SelecT</string>
+    <string name="process_text_label">翻译</string>
 
     <string name="nav_translate">翻译</string>
     <string name="nav_permissions">权限</string>
@@ -43,7 +44,7 @@
     <string name="permission_gate_title">权限设置</string>
     <string name="permission_gate_subtitle">这里的权限不会阻止你使用翻译功能，只是决定能自动到什么程度。</string>
     <string name="permission_gate_accessibility_label">无障碍服务</string>
-    <string name="permission_gate_accessibility_body">用于在其他应用里读取选中的文字，实现自动翻译。只用悬浮球或手动粘贴时可以不开启。</string>
+    <string name="permission_gate_accessibility_body">用于在其他应用里自动读取选中的文字。系统选中菜单里的“翻译”入口不依赖它，可以不开。</string>
     <string name="permission_gate_overlay_label">悬浮窗权限</string>
     <string name="permission_gate_overlay_body">用于显示译文浮层和悬浮球。建议开启，否则只能停留在 App 内手动翻译。</string>
     <string name="permission_gate_enabled">已开启</string>

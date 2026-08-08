@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
@@ -30,6 +30,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,12 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun HomeScreen(onOpenPermissions: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    initialText: String? = null,
+    autoTranslate: Boolean = false,
+    onOpenPermissions: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var page by rememberSaveable { mutableIntStateOf(0) }
@@ -76,6 +82,8 @@ fun HomeScreen(onOpenPermissions: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
+                initialText = initialText,
+                autoTranslate = autoTranslate,
                 onOpenHistory = { page = 1 },
                 onOpenFavorites = { page = 2 },
                 onOpenPermissions = onOpenPermissions,
@@ -102,6 +110,8 @@ fun HomeScreen(onOpenPermissions: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun TranslatePage(
     modifier: Modifier,
+    initialText: String?,
+    autoTranslate: Boolean,
     onOpenHistory: () -> Unit,
     onOpenFavorites: () -> Unit,
     onOpenPermissions: () -> Unit,
@@ -113,21 +123,21 @@ private fun TranslatePage(
     val offlineOff = stringResource(R.string.offline_off)
     val favoriteAdded = stringResource(R.string.favorite_added)
     val favoriteRemoved = stringResource(R.string.favorite_removed)
-    var input by rememberSaveable { mutableStateOf("") }
+    var input by rememberSaveable { mutableStateOf(initialText ?: "") }
     var loading by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<TranslationEntry?>(null) }
     val repository = remember { TranslationRepository(listOf(LocalDictionaryProvider())) }
 
-    val translateAction = {
-        if (input.isNotBlank() && !loading) {
+    val performTranslate: (String) -> Unit = { text ->
+        if (text.isNotBlank() && !loading) {
             loading = true
             scope.launch {
                 try {
                     val translated = repository.translate(
-                        TranslationRequest(text = input.trim(), sourceLang = "en", targetLang = "zh"),
+                        TranslationRequest(text = text.trim(), sourceLang = "en", targetLang = "zh"),
                     )
                     val entry = TranslationEntry(
-                        sourceText = input.trim(),
+                        sourceText = text.trim(),
                         translatedText = translated.text,
                     )
                     result = entry
@@ -138,6 +148,14 @@ private fun TranslatePage(
                     loading = false
                 }
             }
+        }
+    }
+    val translateAction = { performTranslate(input) }
+
+    LaunchedEffect(initialText) {
+        if (autoTranslate && !initialText.isNullOrBlank()) {
+            input = initialText
+            performTranslate(initialText)
         }
     }
 
@@ -385,7 +403,7 @@ private fun PageHeader(title: String, onBack: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
-            Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = stringResource(R.string.back))
+            Icon(imageVector = Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.back))
         }
         Text(
             text = title,

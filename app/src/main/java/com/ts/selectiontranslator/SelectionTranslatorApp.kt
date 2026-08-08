@@ -35,7 +35,7 @@ import com.ts.selectiontranslator.features.home.HomeScreen
 import com.ts.selectiontranslator.features.onboarding.PermissionGateScreen
 
 @Composable
-fun SelectionTranslatorApp() {
+fun SelectionTranslatorApp(initialText: String? = null) {
     AppTheme {
         val context = LocalContext.current
         var permissionState by remember(context) {
@@ -84,6 +84,8 @@ fun SelectionTranslatorApp() {
         ) { padding ->
             when (selectedTab) {
                 0 -> HomeScreen(
+                    initialText = initialText,
+                    autoTranslate = initialText != null,
                     onOpenPermissions = { selectedTab = 1 },
                     modifier = Modifier.padding(padding),
                 )
