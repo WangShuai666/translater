@@ -1,48 +1,56 @@
 <resources>
     <string name="app_name">SelecT</string>
 
-    <string name="permission_gate_title">先开启两个权限</string>
-    <string name="permission_gate_body">为了在任何应用里选中文字后立刻翻译，需要开启无障碍和悬浮窗权限。</string>
-    <string name="permission_gate_ready_body">两个权限都已开启，可以开始全局选取翻译。</string>
+    <string name="nav_translate">翻译</string>
+    <string name="nav_permissions">权限</string>
+
+    <string name="home_title">SelecT</string>
+    <string name="home_subtitle">输入或选中文字，快速得到中文译文。</string>
+    <string name="home_status_ready">全局选中模式已就绪</string>
+    <string name="home_status_manual">当前为手动翻译模式</string>
+    <string name="home_status_manual_body">只开悬浮窗权限也可以正常使用。开启无障碍服务后，才能在其他应用里选中文字直接翻译。</string>
+    <string name="home_open_permissions">去设置权限</string>
+    <string name="home_input_label">输入或粘贴文字</string>
+    <string name="home_input_placeholder">例如：Hello</string>
+    <string name="home_translate">开始翻译</string>
+    <string name="home_translating">翻译中</string>
+    <string name="home_result_title">译文</string>
+    <string name="home_shortcuts_title">快捷功能</string>
+    <string name="home_recent_title">最近翻译</string>
+    <string name="home_recent_empty">还没有翻译记录。</string>
+    <string name="home_hint">默认英译中。离线模式会优先使用本地词典，速度快但不联网。</string>
+
+    <string name="shortcut_translate">实时翻译</string>
+    <string name="shortcut_translate_desc">打开翻译输入页</string>
+    <string name="shortcut_history">历史记录</string>
+    <string name="shortcut_history_desc">查看最近翻译过的内容</string>
+    <string name="shortcut_favorites">收藏内容</string>
+    <string name="shortcut_favorites_desc">保存常用词句，随时回看</string>
+    <string name="shortcut_offline">离线模式</string>
+    <string name="shortcut_offline_desc">断网时使用本地词典</string>
+
+    <string name="history_title">历史记录</string>
+    <string name="history_empty">还没有历史记录。翻译过的内容会出现在这里。</string>
+    <string name="favorites_title">收藏内容</string>
+    <string name="favorites_empty">还没有收藏。在历史记录里点收藏即可保存。</string>
+    <string name="back">返回</string>
+    <string name="favorite_added">已收藏</string>
+    <string name="favorite_removed">已取消收藏</string>
+    <string name="translate_failed">翻译失败，请检查文字后重试</string>
+    <string name="offline_on">离线模式已开启</string>
+    <string name="offline_off">离线模式已关闭</string>
+
+    <string name="permission_gate_title">权限设置</string>
+    <string name="permission_gate_subtitle">这里的权限不会阻止你使用翻译功能，只是决定能自动到什么程度。</string>
     <string name="permission_gate_accessibility_label">无障碍服务</string>
+    <string name="permission_gate_accessibility_body">用于在其他应用里读取选中的文字，实现自动翻译。只用悬浮球或手动粘贴时可以不开启。</string>
     <string name="permission_gate_overlay_label">悬浮窗权限</string>
+    <string name="permission_gate_overlay_body">用于显示译文浮层和悬浮球。建议开启，否则只能停留在 App 内手动翻译。</string>
     <string name="permission_gate_enabled">已开启</string>
     <string name="permission_gate_disabled">未开启</string>
     <string name="permission_gate_accessibility_action">去开启</string>
     <string name="permission_gate_overlay_action">去开启</string>
-    <string name="permission_gate_primary_title">选中即译，不遮挡原文</string>
-    <string name="permission_gate_primary_subtitle">默认英文译中文，接入国内翻译接口，优先速度和准确度。</string>
-    <string name="permission_gate_feature_1">选取文字后自动识别</string>
-    <string name="permission_gate_feature_2">译文独立浮层显示</string>
-    <string name="permission_gate_feature_3">支持历史、收藏和快捷入口</string>
-
-    <string name="home_title">SelecT</string>
-    <string name="home_subtitle">选中文字后直接翻译，原文保留，译文单独显示。</string>
-    <string name="home_ready">当前状态：已就绪</string>
-    <string name="home_primary_action">开始翻译</string>
-    <string name="home_recent_title">最近翻译</string>
-    <string name="home_recent_empty">暂时没有记录。选中一段文字后，结果会出现在这里。</string>
-    <string name="home_shortcuts_title">快捷入口</string>
-    <string name="home_summary_title">使用方式</string>
-    <string name="home_summary_body">在其他应用里选中文字后，系统会读取内容并在屏幕下方显示译文浮层，不会覆盖原文。</string>
-    <string name="home_hint">默认只显示英译中，后续可以扩展双向语言与更多国内接口。</string>
-    <string name="home_provider_label">国内 API 优先</string>
-    <string name="home_speed_label">快速响应</string>
-    <string name="home_accuracy_label">高准确度</string>
-    <string name="home_privacy_label">原文不覆盖</string>
-    <string name="home_shortcut_translate">实时翻译</string>
-    <string name="home_shortcut_history">历史记录</string>
-    <string name="home_shortcut_favorites">收藏内容</string>
-    <string name="home_shortcut_offline">离线模式</string>
-    <string name="home_shortcut_translate_done">已打开实时翻译</string>
-    <string name="home_shortcut_history_done">已查看历史记录</string>
-    <string name="home_shortcut_favorites_done">已查看收藏内容</string>
-    <string name="home_shortcut_offline_on">离线模式已开启</string>
-    <string name="home_shortcut_offline_off">离线模式已关闭</string>
-    <string name="home_action_toast">功能入口已触发</string>
-    <string name="home_recent_sample_title">最近示例</string>
-    <string name="home_recent_sample_body">长按任意选中的文本即可翻译。</string>
-    <string name="home_recent_sample_translation">长按任意选中文本即可翻译。</string>
+    <string name="permission_gate_ready_body">两个权限都已开启，可以开始全局选取翻译。</string>
 
     <string name="overlay_source_label">原文</string>
     <string name="overlay_translation_label">译文</string>

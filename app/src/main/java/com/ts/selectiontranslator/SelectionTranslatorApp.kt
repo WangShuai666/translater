@@ -5,13 +5,26 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -28,6 +41,7 @@ fun SelectionTranslatorApp() {
         var permissionState by remember(context) {
             mutableStateOf(context.readPermissionState())
         }
+        var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
         DisposableEffect(context) {
             val lifecycleOwner = context as? LifecycleOwner
@@ -46,14 +60,40 @@ fun SelectionTranslatorApp() {
             }
         }
 
-        if (permissionState.isReadyForGlobalSelection) {
-            HomeScreen()
-        } else {
-            PermissionGateScreen(
-                state = permissionState,
-                onRequestAccessibility = { context.openAccessibilitySettings() },
-                onRequestOverlay = { context.openOverlaySettings() },
-            )
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = {
+                            Icon(imageVector = Icons.Outlined.Translate, contentDescription = null)
+                        },
+                        label = { Text(text = stringResource(R.string.nav_translate)) },
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = {
+                            Icon(imageVector = Icons.Outlined.Settings, contentDescription = null)
+                        },
+                        label = { Text(text = stringResource(R.string.nav_permissions)) },
+                    )
+                }
+            },
+        ) { padding ->
+            when (selectedTab) {
+                0 -> HomeScreen(
+                    onOpenPermissions = { selectedTab = 1 },
+                    modifier = Modifier.padding(padding),
+                )
+                else -> PermissionGateScreen(
+                    state = permissionState,
+                    onRequestAccessibility = { context.openAccessibilitySettings() },
+                    onRequestOverlay = { context.openOverlaySettings() },
+                    modifier = Modifier.padding(padding),
+                )
+            }
         }
     }
 }

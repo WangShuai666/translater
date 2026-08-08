@@ -1,8 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
-if (-not (Get-PSDrive -Name X -ErrorAction SilentlyContinue)) {
-    subst X: E:\软件 | Out-Null
-}
+$projectRoot = Split-Path $PSScriptRoot -Parent
+subst X: /D 2>$null | Out-Null
+subst X: $projectRoot | Out-Null
 
 Set-Location X:\
 & .\gradlew.bat --no-daemon testDebugUnitTest
