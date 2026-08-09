@@ -9,6 +9,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val initialText = intent?.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+            ?: intent?.getStringExtra(Intent.EXTRA_TEXT)
         setContent {
             SelectionTranslatorApp(initialText = initialText)
         }
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         val initialText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+            ?: intent.getStringExtra(Intent.EXTRA_TEXT)
         setContent {
             SelectionTranslatorApp(initialText = initialText)
         }
