@@ -56,7 +56,7 @@ class LocalDictionaryProvider : TranslationProvider {
             ?: if (trimmed.isBlank()) {
                 ""
             } else {
-                "本地词典暂未收录。接入国内翻译 API 后会自动返回完整译文。"
+                throw NoSuchElementException("Not in local dictionary")
             }
         return TranslationResult(text = translated, providerName = "本地词典")
     }

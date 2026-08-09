@@ -47,6 +47,7 @@ import com.ts.selectiontranslator.R
 import com.ts.selectiontranslator.core.state.AppState
 import com.ts.selectiontranslator.core.state.TranslationEntry
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
+import com.ts.selectiontranslator.data.providers.WebTranslationProvider
 import com.ts.selectiontranslator.features.shortcuts.ShortcutPanel
 import com.ts.selectiontranslator.features.translate.TranslationRepository
 import com.ts.selectiontranslator.features.translate.TranslationRequest
@@ -126,7 +127,14 @@ private fun TranslatePage(
     var input by rememberSaveable { mutableStateOf(initialText ?: "") }
     var loading by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<TranslationEntry?>(null) }
-    val repository = remember { TranslationRepository(listOf(LocalDictionaryProvider())) }
+    val repository = remember {
+        TranslationRepository(
+            listOf(
+                LocalDictionaryProvider(),
+                WebTranslationProvider(),
+            ),
+        )
+    }
 
     val performTranslate: (String) -> Unit = { text ->
         if (text.isNotBlank() && !loading) {
