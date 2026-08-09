@@ -17,7 +17,10 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.ts.selectiontranslator.core.state.AppState
 import com.ts.selectiontranslator.core.state.SelectionDiagnostics
+import com.ts.selectiontranslator.core.state.TranslationEntry
+import com.ts.selectiontranslator.core.state.TranslationSource
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridge
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridgeActivity
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
@@ -320,6 +323,13 @@ class SelectionAccessibilityService : AccessibilityService() {
 
             withContext(Dispatchers.Main) {
                 if (currentRequest != requestId) return@withContext
+                AppState.addHistory(
+                    TranslationEntry(
+                        sourceText = text,
+                        translatedText = result.text,
+                        sourceType = TranslationSource.SELECTION,
+                    ),
+                )
                 SelectionDiagnostics.record("翻译完成：${result.text.take(24)}")
                 showResultOverlay(text, result.text, source)
             }

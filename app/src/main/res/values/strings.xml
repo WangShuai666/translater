@@ -32,6 +32,8 @@
 
     <string name="history_title">历史记录</string>
     <string name="history_empty">还没有历史记录。翻译过的内容会出现在这里。</string>
+    <string name="history_source_selection">选取翻译</string>
+    <string name="history_source_manual">手动翻译</string>
     <string name="favorites_title">收藏内容</string>
     <string name="favorites_empty">还没有收藏。在历史记录里点收藏即可保存。</string>
     <string name="back">返回</string>

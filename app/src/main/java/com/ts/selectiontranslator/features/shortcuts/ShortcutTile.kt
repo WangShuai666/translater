@@ -20,23 +20,46 @@ fun ShortcutTile(
     description: String,
     icon: ImageVector,
     onClick: () -> Unit,
+    isActive: Boolean = false,
 ) {
+    val containerColor = if (isActive) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val contentColor = if (isActive) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    val descriptionColor = if (isActive) {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            Text(text = label, style = MaterialTheme.typography.titleMedium)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isActive) contentColor else MaterialTheme.colorScheme.primary,
+            )
+            Text(text = label, style = MaterialTheme.typography.titleMedium, color = contentColor)
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = descriptionColor,
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.ts.selectiontranslator.features.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.ts.selectiontranslator.R
 import com.ts.selectiontranslator.core.state.AppState
 import com.ts.selectiontranslator.core.state.TranslationEntry
+import com.ts.selectiontranslator.core.state.TranslationSource
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
 import com.ts.selectiontranslator.data.providers.WebTranslationProvider
 import com.ts.selectiontranslator.features.shortcuts.ShortcutPanel
@@ -66,6 +68,10 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var page by rememberSaveable { mutableIntStateOf(0) }
+
+    BackHandler(enabled = page != 0) {
+        page = 0
+    }
 
     fun notify(message: String) {
         scope.launch {
@@ -120,8 +126,6 @@ private fun TranslatePage(
 ) {
     val scope = rememberCoroutineScope()
     val translateFailed = stringResource(R.string.translate_failed)
-    val offlineOn = stringResource(R.string.offline_on)
-    val offlineOff = stringResource(R.string.offline_off)
     val favoriteAdded = stringResource(R.string.favorite_added)
     val favoriteRemoved = stringResource(R.string.favorite_removed)
     var input by rememberSaveable { mutableStateOf(initialText ?: "") }
@@ -147,6 +151,7 @@ private fun TranslatePage(
                     val entry = TranslationEntry(
                         sourceText = text.trim(),
                         translatedText = translated.text,
+                        sourceType = TranslationSource.MANUAL,
                     )
                     result = entry
                     AppState.addHistory(entry)
@@ -277,13 +282,6 @@ private fun TranslatePage(
                 onOpenFavorites = onOpenFavorites,
                 onToggleOffline = {
                     AppState.setOffline(!AppState.offlineMode)
-                    onNotify(
-                        if (AppState.offlineMode) {
-                            offlineOn
-                        } else {
-                            offlineOff
-                        },
-                    )
                 },
             )
         }
@@ -309,7 +307,7 @@ private fun TranslatePage(
                 HistoryRow(entry = entry, showFavorite = true, onToggleFavorite = {
                     AppState.toggleFavorite(entry)
                     onNotify(
-                        if (AppState.favorites.any { it.sourceText == entry.sourceText }) {
+                        if (AppState.isFavorite(entry)) {
                             favoriteAdded
                         } else {
                             favoriteRemoved
@@ -358,7 +356,7 @@ private fun HistoryPage(
                 HistoryRow(entry = entry, showFavorite = true, onToggleFavorite = {
                     AppState.toggleFavorite(entry)
                     onNotify(
-                        if (AppState.favorites.any { it.sourceText == entry.sourceText }) {
+                        if (AppState.isFavorite(entry)) {
                             favoriteAdded
                         } else {
                             favoriteRemoved
@@ -446,8 +444,24 @@ private fun HistoryRow(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Text(
+                    text = if (entry.sourceType == TranslationSource.SELECTION) {
+                        stringResource(R.string.history_source_selection)
+                    } else {
+                        stringResource(R.string.history_source_manual)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (entry.sourceType == TranslationSource.SELECTION) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
                 if (showFavorite) {
-                    val isFavorite = AppState.favorites.any { it.sourceText == entry.sourceText }
+                    val isFavorite = AppState.isFavorite(entry)
                     IconButton(onClick = onToggleFavorite) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,

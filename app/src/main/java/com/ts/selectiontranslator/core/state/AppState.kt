@@ -5,10 +5,16 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
+enum class TranslationSource {
+    MANUAL,
+    SELECTION,
+}
+
 data class TranslationEntry(
     val sourceText: String,
     val translatedText: String,
     val timestamp: Long = System.currentTimeMillis(),
+    val sourceType: TranslationSource = TranslationSource.MANUAL,
 )
 
 data class DiagnosticEvent(
@@ -24,7 +30,9 @@ object AppState {
         private set
 
     fun addHistory(entry: TranslationEntry) {
-        history.removeAll { it.sourceText == entry.sourceText }
+        history.removeAll {
+            it.sourceText == entry.sourceText && it.sourceType == entry.sourceType
+        }
         history.add(0, entry)
         while (history.size > 100) {
             history.removeAt(history.size - 1)
@@ -32,11 +40,19 @@ object AppState {
     }
 
     fun toggleFavorite(entry: TranslationEntry) {
-        val existing = favorites.indexOfFirst { it.sourceText == entry.sourceText }
+        val existing = favorites.indexOfFirst {
+            it.sourceText == entry.sourceText && it.sourceType == entry.sourceType
+        }
         if (existing >= 0) {
             favorites.removeAt(existing)
         } else {
             favorites.add(0, entry)
+        }
+    }
+
+    fun isFavorite(entry: TranslationEntry): Boolean {
+        return favorites.any {
+            it.sourceText == entry.sourceText && it.sourceType == entry.sourceType
         }
     }
 
