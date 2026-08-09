@@ -36,7 +36,8 @@ import kotlinx.coroutines.withContext
 
 class SelectionAccessibilityService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val repository = TranslationRepository(
+    private val offlineRepository = TranslationRepository(listOf(LocalDictionaryProvider()))
+    private val onlineRepository = TranslationRepository(
         listOf(
             LocalDictionaryProvider(),
             WebTranslationProvider(),
@@ -313,6 +314,7 @@ class SelectionAccessibilityService : AccessibilityService() {
         removeResultOverlay()
         val currentRequest = ++requestId
         scope.launch {
+            val repository = if (AppState.offlineMode) offlineRepository else onlineRepository
             val result = runCatching {
                 repository.translate(TranslationRequest(text = text, sourceLang = "en", targetLang = "zh"))
             }.getOrNull()

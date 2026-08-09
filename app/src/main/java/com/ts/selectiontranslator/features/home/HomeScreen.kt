@@ -131,13 +131,17 @@ private fun TranslatePage(
     var input by rememberSaveable { mutableStateOf(initialText ?: "") }
     var loading by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<TranslationEntry?>(null) }
-    val repository = remember {
-        TranslationRepository(
-            listOf(
-                LocalDictionaryProvider(),
-                WebTranslationProvider(),
-            ),
-        )
+    val repository = remember(AppState.offlineMode) {
+        if (AppState.offlineMode) {
+            TranslationRepository(listOf(LocalDictionaryProvider()))
+        } else {
+            TranslationRepository(
+                listOf(
+                    LocalDictionaryProvider(),
+                    WebTranslationProvider(),
+                ),
+            )
+        }
     }
 
     val performTranslate: (String) -> Unit = { text ->
