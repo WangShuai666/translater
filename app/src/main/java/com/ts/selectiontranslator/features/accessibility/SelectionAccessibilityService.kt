@@ -78,8 +78,10 @@ class SelectionAccessibilityService : AccessibilityService() {
         } else if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             if (!shouldHandleContentChanged(event, now)) return
             val changes = event.contentChangeTypes
-            if (changes == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED ||
+            if (!isBroadContentChangeEvent(event) &&
+                (changes == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED ||
                 changes and AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT == 0
+                )
             ) {
                 return
             }
@@ -117,6 +119,12 @@ class SelectionAccessibilityService : AccessibilityService() {
             return true
         }
         return false
+    }
+
+    private fun isBroadContentChangeEvent(event: AccessibilityEvent): Boolean {
+        val packageName = event.packageName?.toString().orEmpty()
+        val className = event.source?.className?.toString().orEmpty()
+        return packageName == "com.github.android" || className.contains("WebView", ignoreCase = true)
     }
 
     private fun handleSelection(selected: String, source: AccessibilityNodeInfo?) {
