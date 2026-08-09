@@ -41,6 +41,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -131,6 +134,8 @@ private fun TranslatePage(
     var input by rememberSaveable { mutableStateOf(initialText ?: "") }
     var loading by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<TranslationEntry?>(null) }
+    val inputFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     val repository = remember(AppState.offlineMode) {
         if (AppState.offlineMode) {
             TranslationRepository(listOf(LocalDictionaryProvider()))
@@ -176,6 +181,13 @@ private fun TranslatePage(
         }
     }
 
+    LaunchedEffect(Unit) {
+        if (initialText.isNullOrBlank()) {
+            inputFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
     LazyColumn(
         modifier = modifier
             .padding(20.dp),
@@ -212,7 +224,9 @@ private fun TranslatePage(
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(inputFocusRequester),
                 label = { Text(stringResource(R.string.home_input_label)) },
                 placeholder = { Text(stringResource(R.string.home_input_placeholder)) },
                 minLines = 3,
