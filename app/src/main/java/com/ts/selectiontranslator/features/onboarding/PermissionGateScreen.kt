@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ts.selectiontranslator.R
 import com.ts.selectiontranslator.core.permissions.PermissionState
+import com.ts.selectiontranslator.core.state.SelectionDiagnostics
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun PermissionGateScreen(
@@ -68,6 +73,52 @@ fun PermissionGateScreen(
                 }
             }
 
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.permission_diagnostics_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        TextButton(onClick = { SelectionDiagnostics.clear() }) {
+                            Text(text = stringResource(R.string.permission_diagnostics_clear))
+                        }
+                    }
+                    Text(
+                        text = stringResource(R.string.permission_diagnostics_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (SelectionDiagnostics.events.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.permission_diagnostics_empty),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        SelectionDiagnostics.events.take(15).forEach { event ->
+                            Text(
+                                text = "${formatDiagnosticTime(event.timestamp)}  ${event.message}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+
             PermissionCard(
                 title = stringResource(R.string.permission_gate_accessibility_label),
                 body = stringResource(R.string.permission_gate_accessibility_body),
@@ -95,6 +146,10 @@ fun PermissionGateScreen(
             )
         }
     }
+}
+
+private fun formatDiagnosticTime(timestamp: Long): String {
+    return SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
 }
 
 @Composable

@@ -51,7 +51,12 @@
     <string name="permission_gate_disabled">未开启</string>
     <string name="permission_gate_accessibility_action">去开启</string>
     <string name="permission_gate_overlay_action">去开启</string>
-    <string name="permission_gate_ready_body">两个权限都已开启，可以开始全局选取翻译。</string>
+    <string name="permission_gate_ready_body">无障碍服务已开启，可以开始全局选取翻译。译文浮层由无障碍服务直接显示。</string>
+
+    <string name="permission_diagnostics_title">最近事件</string>
+    <string name="permission_diagnostics_hint">到 GitHub 框选一次后回来查看，能定位卡在哪一步。</string>
+    <string name="permission_diagnostics_empty">暂无事件</string>
+    <string name="permission_diagnostics_clear">清空</string>
 
     <string name="overlay_source_label">原文</string>
     <string name="overlay_translation_label">译文</string>

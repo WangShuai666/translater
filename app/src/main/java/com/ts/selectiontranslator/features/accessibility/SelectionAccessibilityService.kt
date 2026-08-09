@@ -9,7 +9,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -17,6 +16,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.ts.selectiontranslator.core.state.SelectionDiagnostics
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridge
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridgeActivity
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
@@ -54,10 +54,18 @@ class SelectionAccessibilityService : AccessibilityService() {
     private var pendingSelectionSource: AccessibilityNodeInfo? = null
     private var requestId: Long = 0L
 
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        SelectionDiagnostics.record("无障碍服务已连接")
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         val eventType = event.eventType
         val now = System.currentTimeMillis()
+        SelectionDiagnostics.record(
+            "收到事件 ${AccessibilityEvent.eventTypeToString(eventType)}，来自 ${event.packageName}",
+        )
 
         when (eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
@@ -68,7 +76,7 @@ class SelectionAccessibilityService : AccessibilityService() {
         if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
             lastSelectionEventAt = now
         } else if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            if (now - lastSelectionEventAt > 2500L) return
+            if (!shouldHandleContentChanged(event, now)) return
             val changes = event.contentChangeTypes
             if (changes == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED ||
                 changes and AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT == 0
@@ -81,12 +89,30 @@ class SelectionAccessibilityService : AccessibilityService() {
 
         val selected = event.source?.selectedText()
         if (selected.isNullOrBlank()) {
+            SelectionDiagnostics.record("未读到选中文本，安排自动读取")
             scheduleSelectionFallback(event.source)
             return
         }
 
         cancelPendingSelectionCheck()
+        SelectionDiagnostics.record("读到选中文本：${selected.take(24)}")
         handleSelection(selected, event.source)
+    }
+
+    private fun shouldHandleContentChanged(event: AccessibilityEvent, now: Long): Boolean {
+        if (now - lastSelectionEventAt <= 2500L) return true
+        val source = event.source
+        val className = source?.className?.toString().orEmpty()
+        if (className.contains("WebView", ignoreCase = true)) return true
+
+        val packageName = event.packageName?.toString().orEmpty()
+        if (packageName == "com.github.android") {
+            val selectionStart = source?.textSelectionStart ?: -1
+            val selectionEnd = source?.textSelectionEnd ?: -1
+            val hasSelection = selectionStart >= 0 && selectionEnd > selectionStart
+            return source?.isTextSelectable == true || hasSelection
+        }
+        return false
     }
 
     private fun handleSelection(selected: String, source: AccessibilityNodeInfo?) {
@@ -135,10 +161,12 @@ class SelectionAccessibilityService : AccessibilityService() {
         pendingSelectionSource = source ?: rootInActiveWindow
         val check = Runnable {
             pendingSelectionCheck = null
+            SelectionDiagnostics.record("自动读取回退开始")
             val found = findSelectionInWindow()
             if (found != null) {
                 handleSelection(found.second, found.first)
             } else {
+                SelectionDiagnostics.record("窗口内未找到选区，尝试自动复制")
                 copySelectionAndTranslate(pendingSelectionSource)
             }
             pendingSelectionSource = null
@@ -157,7 +185,12 @@ class SelectionAccessibilityService : AccessibilityService() {
         val now = System.currentTimeMillis()
         if (now - clipboardFallbackAt < 1600L) return
 
-        val copyTarget = findCopyTarget(source) ?: return
+        val copyTarget = findCopyTarget(source)
+        if (copyTarget == null) {
+            SelectionDiagnostics.record("没有找到可复制的节点")
+            return
+        }
+        SelectionDiagnostics.record("自动复制成功，准备读取剪贴板")
 
         clipboardFallbackAt = now
         val request = ++clipboardRequestId
@@ -171,12 +204,18 @@ class SelectionAccessibilityService : AccessibilityService() {
                     Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
             )
         }
-        runCatching { startActivity(intent) }
+        runCatching { startActivity(intent) }.onFailure {
+            SelectionDiagnostics.record("桥接页面启动失败：${it.message}")
+        }
 
         mainHandler.postDelayed({
             val copied = ClipboardBridge.capturedText
             if (ClipboardBridge.requestId != request) return@postDelayed
-            if (copied.isNullOrBlank() || copied == lastSelectedText) return@postDelayed
+            if (copied.isNullOrBlank() || copied == lastSelectedText) {
+                SelectionDiagnostics.record("剪贴板读取为空或与上次相同")
+                return@postDelayed
+            }
+            SelectionDiagnostics.record("剪贴板读取到：${copied.take(24)}")
             handleSelection(copied, source)
         }, 320L)
     }
@@ -217,17 +256,20 @@ class SelectionAccessibilityService : AccessibilityService() {
             val result = runCatching {
                 repository.translate(TranslationRequest(text = text, sourceLang = "en", targetLang = "zh"))
             }.getOrNull()
-            if (result == null || result.text.isBlank()) return@launch
+            if (result == null || result.text.isBlank()) {
+                SelectionDiagnostics.record("翻译失败，未显示浮层")
+                return@launch
+            }
 
             withContext(Dispatchers.Main) {
                 if (currentRequest != requestId) return@withContext
+                SelectionDiagnostics.record("翻译完成：${result.text.take(24)}")
                 showResultOverlay(text, result.text, source)
             }
         }
     }
 
     private fun showResultOverlay(sourceText: String, translatedText: String, source: AccessibilityNodeInfo?) {
-        if (!Settings.canDrawOverlays(this)) return
         removeResultOverlay()
 
         val sourceView = TextView(this).apply {
@@ -261,7 +303,7 @@ class SelectionAccessibilityService : AccessibilityService() {
         val params = WindowManager.LayoutParams(
             maxWidth,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -272,8 +314,14 @@ class SelectionAccessibilityService : AccessibilityService() {
         params.x = position.first
         params.y = position.second
 
-        windowManagerService.addView(card, params)
-        resultOverlay = card
+        runCatching {
+            windowManagerService.addView(card, params)
+            resultOverlay = card
+        }.onSuccess {
+            SelectionDiagnostics.record("译文浮层已显示")
+        }.onFailure {
+            SelectionDiagnostics.record("译文浮层显示失败：${it.message}")
+        }
         mainHandler.postDelayed(dismissResult, 6000L)
     }
 

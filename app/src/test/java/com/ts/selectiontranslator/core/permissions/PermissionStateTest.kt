@@ -24,4 +24,14 @@ class PermissionStateTest {
 
         assertTrue(state.isReadyForGlobalSelection)
     }
+
+    @Test
+    fun `gate is ready with accessibility only`() {
+        val state = PermissionState(
+            accessibilityEnabled = true,
+            overlayEnabled = false,
+        )
+
+        assertTrue(state.isReadyForGlobalSelection)
+    }
 }

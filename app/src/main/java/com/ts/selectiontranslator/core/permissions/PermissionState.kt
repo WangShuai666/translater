@@ -5,5 +5,5 @@ data class PermissionState(
     val overlayEnabled: Boolean,
 ) {
     val isReadyForGlobalSelection: Boolean
-        get() = accessibilityEnabled && overlayEnabled
+        get() = accessibilityEnabled
 }

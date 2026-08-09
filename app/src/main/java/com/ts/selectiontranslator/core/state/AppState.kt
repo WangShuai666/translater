@@ -11,6 +11,11 @@ data class TranslationEntry(
     val timestamp: Long = System.currentTimeMillis(),
 )
 
+data class DiagnosticEvent(
+    val timestamp: Long = System.currentTimeMillis(),
+    val message: String,
+)
+
 object AppState {
     val history = mutableStateListOf<TranslationEntry>()
     val favorites = mutableStateListOf<TranslationEntry>()
@@ -37,5 +42,20 @@ object AppState {
 
     fun setOffline(enabled: Boolean) {
         offlineMode = enabled
+    }
+}
+
+object SelectionDiagnostics {
+    val events = mutableStateListOf<DiagnosticEvent>()
+
+    fun record(message: String) {
+        events.add(0, DiagnosticEvent(message = message))
+        while (events.size > 30) {
+            events.removeAt(events.size - 1)
+        }
+    }
+
+    fun clear() {
+        events.clear()
     }
 }
