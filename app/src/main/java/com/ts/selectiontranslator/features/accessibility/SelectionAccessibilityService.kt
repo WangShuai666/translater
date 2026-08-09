@@ -20,7 +20,6 @@ import android.widget.TextView
 import com.ts.selectiontranslator.core.state.SelectionDiagnostics
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridge
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridgeActivity
-import com.ts.selectiontranslator.features.shortcuts.TranslationPrefs
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
 import com.ts.selectiontranslator.data.providers.WebTranslationProvider
 import com.ts.selectiontranslator.features.translate.TranslationRepository
@@ -73,15 +72,6 @@ class SelectionAccessibilityService : AccessibilityService() {
         SelectionDiagnostics.record(
             "收到事件 ${AccessibilityEvent.eventTypeToString(eventType)}，来自 ${event.packageName}",
         )
-
-        if (!TranslationPrefs.isEnabled(this)) {
-            if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
-                eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED
-            ) {
-                dismissOverlayIfAppChanged(event)
-            }
-            return
-        }
 
         when (eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,

@@ -58,13 +58,6 @@
     <string name="permission_diagnostics_empty">暂无事件</string>
     <string name="permission_diagnostics_clear">清空</string>
 
-    <string name="quick_tile_label">SelecT 翻译</string>
-    <string name="quick_tile_label_on">翻译已开启</string>
-    <string name="quick_tile_label_off">翻译已关闭</string>
-    <string name="quick_tile_label_accessibility">开启无障碍</string>
-    <string name="quick_tile_guide_title">快捷翻译磁贴</string>
-    <string name="quick_tile_guide_body">下拉控制中心，点“编辑”，把“SelecT 翻译”添加到快捷面板。以后点一下磁贴就能开启或关闭框选翻译；如果无障碍没开，会先跳到无障碍设置。</string>
-
     <string name="overlay_source_label">原文</string>
     <string name="overlay_translation_label">译文</string>
     <string name="overlay_copy">复制</string>
