@@ -39,7 +39,6 @@ class SelectionAccessibilityService : AccessibilityService() {
         ),
     )
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val dismissResult = Runnable { removeResultOverlay() }
     private val windowManagerService: WindowManager by lazy {
         getSystemService(WindowManager::class.java)
     }
@@ -323,22 +322,23 @@ class SelectionAccessibilityService : AccessibilityService() {
     }
 
     private fun showResultOverlay(sourceText: String, translatedText: String, source: AccessibilityNodeInfo?) {
+        val context = this@SelectionAccessibilityService
         removeResultOverlay()
 
-        val sourceView = TextView(this).apply {
+        val sourceView = TextView(context).apply {
             text = sourceText
             setTextColor(Color.rgb(71, 85, 105))
             textSize = 13f
             maxLines = 3
         }
-        val translationView = TextView(this).apply {
+        val translationView = TextView(context).apply {
             text = translatedText
             setTextColor(Color.rgb(15, 23, 42))
             textSize = 17f
             typeface = Typeface.DEFAULT_BOLD
             maxLines = 6
         }
-        val card = LinearLayout(this).apply {
+        val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(10), dp(14), dp(10))
             background = GradientDrawable().apply {
@@ -347,6 +347,29 @@ class SelectionAccessibilityService : AccessibilityService() {
                 setStroke(dp(1), Color.rgb(15, 118, 110))
             }
             elevation = dp(6).toFloat()
+            val header = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(
+                    TextView(context).apply {
+                        text = "译文"
+                        setTextColor(Color.rgb(15, 118, 110))
+                        textSize = 13f
+                        typeface = Typeface.DEFAULT_BOLD
+                    },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
+                )
+                addView(
+                    TextView(context).apply {
+                        text = "X"
+                        gravity = Gravity.CENTER
+                        setTextColor(Color.rgb(100, 116, 139))
+                        textSize = 16f
+                        setPadding(dp(10), dp(2), 0, 0)
+                        setOnClickListener { removeResultOverlay() }
+                    },
+                )
+            }
+            addView(header)
             addView(sourceView)
             addView(translationView)
         }
@@ -376,11 +399,9 @@ class SelectionAccessibilityService : AccessibilityService() {
         }.onFailure {
             SelectionDiagnostics.record("译文浮层显示失败：${it.message}")
         }
-        mainHandler.postDelayed(dismissResult, 6000L)
     }
 
     private fun removeResultOverlay() {
-        mainHandler.removeCallbacks(dismissResult)
         resultOverlay?.let {
             runCatching { windowManagerService.removeView(it) }
         }
