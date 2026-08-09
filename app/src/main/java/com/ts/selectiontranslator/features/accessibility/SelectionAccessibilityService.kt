@@ -45,6 +45,8 @@ class SelectionAccessibilityService : AccessibilityService() {
     }
 
     private var resultOverlay: View? = null
+    private var resultOverlayOwnerPackage: String? = null
+    private var lastSelectionPackage: String? = null
     private var lastSelectedText: String = ""
     private var lastTriggerAt: Long = 0L
     private var clipboardRequestId: Long = 0L
@@ -70,13 +72,15 @@ class SelectionAccessibilityService : AccessibilityService() {
         when (eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
             AccessibilityEvent.TYPE_WINDOWS_CHANGED,
-            -> removeResultOverlay()
+            -> dismissOverlayIfAppChanged(event)
         }
 
         if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
             lastSelectionEventAt = now
+            event.packageName?.toString()?.let { lastSelectionPackage = it }
         } else if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             if (!shouldHandleContentChanged(event, now)) return
+            event.packageName?.toString()?.let { lastSelectionPackage = it }
             val changes = event.contentChangeTypes
             if (!isBroadContentChangeEvent(event) &&
                 (changes == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED ||
@@ -99,6 +103,18 @@ class SelectionAccessibilityService : AccessibilityService() {
         cancelPendingSelectionCheck()
         SelectionDiagnostics.record("读到选中文本：${selected.take(24)}")
         handleSelection(selected, event.source)
+    }
+
+    private fun dismissOverlayIfAppChanged(event: AccessibilityEvent) {
+        val ownerPackage = resultOverlayOwnerPackage ?: return
+        val currentPackage = event.packageName?.toString() ?: activeWindowPackage() ?: return
+        if (currentPackage != ownerPackage && currentPackage != this.packageName) {
+            removeResultOverlay()
+        }
+    }
+
+    private fun activeWindowPackage(): String? {
+        return windows.firstOrNull { it.isActive }?.root?.packageName?.toString()
     }
 
     private fun shouldHandleContentChanged(event: AccessibilityEvent, now: Long): Boolean {
@@ -356,6 +372,7 @@ class SelectionAccessibilityService : AccessibilityService() {
             resultOverlay = card
         }.onSuccess {
             SelectionDiagnostics.record("译文浮层已显示")
+            resultOverlayOwnerPackage = lastSelectionPackage
         }.onFailure {
             SelectionDiagnostics.record("译文浮层显示失败：${it.message}")
         }
@@ -368,6 +385,7 @@ class SelectionAccessibilityService : AccessibilityService() {
             runCatching { windowManagerService.removeView(it) }
         }
         resultOverlay = null
+        resultOverlayOwnerPackage = null
     }
 
     private fun resultPosition(source: AccessibilityNodeInfo?, width: Int): Pair<Int, Int> {
