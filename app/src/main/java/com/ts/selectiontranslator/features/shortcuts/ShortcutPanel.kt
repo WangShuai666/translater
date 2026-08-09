@@ -37,6 +37,9 @@ fun ShortcutPanel(
             icon = Icons.Outlined.WifiOff,
             onClick = onToggleOffline,
             isActive = AppState.offlineMode,
+            trailingLabel = stringResource(
+                if (AppState.offlineMode) R.string.status_on else R.string.status_off,
+            ),
         )
     }
 }

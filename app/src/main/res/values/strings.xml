@@ -42,6 +42,8 @@
     <string name="translate_failed">翻译失败，请检查文字后重试</string>
     <string name="offline_on">离线模式已开启</string>
     <string name="offline_off">离线模式已关闭</string>
+    <string name="status_on">开启</string>
+    <string name="status_off">关闭</string>
 
     <string name="permission_gate_title">权限设置</string>
     <string name="permission_gate_subtitle">这里的权限不会阻止你使用翻译功能，只是决定能自动到什么程度。</string>
