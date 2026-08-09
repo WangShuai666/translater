@@ -110,7 +110,11 @@ class SelectionAccessibilityService : AccessibilityService() {
             val selectionStart = source?.textSelectionStart ?: -1
             val selectionEnd = source?.textSelectionEnd ?: -1
             val hasSelection = selectionStart >= 0 && selectionEnd > selectionStart
-            return source?.isTextSelectable == true || hasSelection
+            val className = source?.className?.toString().orEmpty()
+            if (className.contains("EditText", ignoreCase = true)) {
+                return hasSelection
+            }
+            return true
         }
         return false
     }
@@ -186,7 +190,7 @@ class SelectionAccessibilityService : AccessibilityService() {
         if (now - clipboardFallbackAt < 1600L) return
 
         val copyTarget = findCopyTarget(source)
-        if (copyTarget == null) {
+        if (copyTarget == null && !clickCopyMenu()) {
             SelectionDiagnostics.record("没有找到可复制的节点")
             return
         }
@@ -231,6 +235,31 @@ class SelectionAccessibilityService : AccessibilityService() {
         }
 
         return findCopyTargetInNode(root)
+    }
+
+    private fun clickCopyMenu(): Boolean {
+        for (window in windows) {
+            val root = window.root ?: continue
+            if (clickCopyMenuInNode(root)) return true
+        }
+        return false
+    }
+
+    private fun clickCopyMenuInNode(node: AccessibilityNodeInfo): Boolean {
+        val text = node.text?.toString().orEmpty().trim()
+        val description = node.contentDescription?.toString().orEmpty().trim()
+        if (text == "复制" || description == "复制" ||
+            text.equals("Copy", ignoreCase = true) || description.equals("Copy", ignoreCase = true)
+        ) {
+            if (runCatching { node.performAction(AccessibilityNodeInfo.ACTION_CLICK) }.getOrDefault(false)) {
+                return true
+            }
+        }
+        for (index in 0 until node.childCount) {
+            val child = node.getChild(index) ?: continue
+            if (clickCopyMenuInNode(child)) return true
+        }
+        return false
     }
 
     private fun findCopyTargetInNode(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
