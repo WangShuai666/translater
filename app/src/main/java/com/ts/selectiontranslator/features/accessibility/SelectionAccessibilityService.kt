@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -19,6 +20,7 @@ import android.widget.TextView
 import com.ts.selectiontranslator.core.state.SelectionDiagnostics
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridge
 import com.ts.selectiontranslator.features.clipboard.ClipboardBridgeActivity
+import com.ts.selectiontranslator.features.shortcuts.TranslationPrefs
 import com.ts.selectiontranslator.data.providers.LocalDictionaryProvider
 import com.ts.selectiontranslator.data.providers.WebTranslationProvider
 import com.ts.selectiontranslator.features.translate.TranslationRepository
@@ -46,6 +48,10 @@ class SelectionAccessibilityService : AccessibilityService() {
     private var resultOverlay: View? = null
     private var resultOverlayOwnerPackage: String? = null
     private var lastSelectionPackage: String? = null
+    private var dragStartX: Float = 0f
+    private var dragStartY: Float = 0f
+    private var overlayStartX: Int = 0
+    private var overlayStartY: Int = 0
     private var lastSelectedText: String = ""
     private var lastTriggerAt: Long = 0L
     private var clipboardRequestId: Long = 0L
@@ -67,6 +73,15 @@ class SelectionAccessibilityService : AccessibilityService() {
         SelectionDiagnostics.record(
             "收到事件 ${AccessibilityEvent.eventTypeToString(eventType)}，来自 ${event.packageName}",
         )
+
+        if (!TranslationPrefs.isEnabled(this)) {
+            if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
+                eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED
+            ) {
+                dismissOverlayIfAppChanged(event)
+            }
+            return
+        }
 
         when (eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
@@ -382,13 +397,37 @@ class SelectionAccessibilityService : AccessibilityService() {
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT,
         )
         params.gravity = Gravity.TOP or Gravity.START
         val position = resultPosition(source, maxWidth)
         params.x = position.first
         params.y = position.second
+
+        card.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_OUTSIDE -> {
+                    removeResultOverlay()
+                    true
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    dragStartX = event.rawX
+                    dragStartY = event.rawY
+                    overlayStartX = params.x
+                    overlayStartY = params.y
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    params.x = (overlayStartX + (event.rawX - dragStartX).toInt()).coerceAtLeast(0)
+                    params.y = (overlayStartY + (event.rawY - dragStartY).toInt()).coerceAtLeast(0)
+                    runCatching { windowManagerService.updateViewLayout(card, params) }
+                    true
+                }
+                else -> false
+            }
+        }
 
         runCatching {
             windowManagerService.addView(card, params)

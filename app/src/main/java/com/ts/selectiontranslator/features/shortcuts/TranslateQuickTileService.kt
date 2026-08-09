@@ -5,7 +5,6 @@ import android.content.Intent
 import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.ts.selectiontranslator.MainActivity
 import com.ts.selectiontranslator.R
 import com.ts.selectiontranslator.features.accessibility.SelectionAccessibilityService
 
@@ -22,23 +21,27 @@ class TranslateQuickTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val target = if (isAccessibilityEnabled()) {
-            Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }
-        } else {
-            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        if (!isAccessibilityEnabled()) {
+            startActivityAndCollapse(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            return
         }
-        startActivityAndCollapse(target)
+
+        TranslationPrefs.setEnabled(this, !TranslationPrefs.isEnabled(this))
+        updateTile()
     }
 
     private fun updateTile() {
         val tile = qsTile ?: return
-        val enabled = isAccessibilityEnabled()
-        tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = getString(
-            if (enabled) R.string.quick_tile_label_on else R.string.quick_tile_label_off,
-        )
+        if (!isAccessibilityEnabled()) {
+            tile.state = Tile.STATE_INACTIVE
+            tile.label = getString(R.string.quick_tile_label_accessibility)
+        } else {
+            val enabled = TranslationPrefs.isEnabled(this)
+            tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+            tile.label = getString(
+                if (enabled) R.string.quick_tile_label_on else R.string.quick_tile_label_off,
+            )
+        }
         tile.updateTile()
     }
 
