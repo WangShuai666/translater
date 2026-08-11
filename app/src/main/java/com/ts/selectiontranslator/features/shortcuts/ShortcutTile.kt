@@ -1,5 +1,6 @@
 package com.ts.selectiontranslator.features.shortcuts
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -41,12 +43,24 @@ fun ShortcutTile(
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
+    val animatedContainer by animateColorAsState(
+        targetValue = containerColor,
+        label = "shortcutContainer",
+    )
+    val animatedContent by animateColorAsState(
+        targetValue = contentColor,
+        label = "shortcutContent",
+    )
+    val animatedDescription by animateColorAsState(
+        targetValue = descriptionColor,
+        label = "shortcutDescription",
+    )
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
+            containerColor = animatedContainer,
+            contentColor = animatedContent,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
@@ -61,22 +75,22 @@ fun ShortcutTile(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isActive) contentColor else MaterialTheme.colorScheme.primary,
+                    tint = if (isActive) animatedContent else MaterialTheme.colorScheme.primary,
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = label, style = MaterialTheme.typography.titleMedium, color = contentColor)
+                    Text(text = label, style = MaterialTheme.typography.titleMedium, color = animatedContent)
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodySmall,
-                        color = descriptionColor,
+                        color = animatedDescription,
                     )
                 }
                 if (trailingLabel != null) {
                     Text(
                         text = trailingLabel,
                         style = MaterialTheme.typography.titleSmall,
-                        color = if (isActive) contentColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (isActive) animatedContent else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

@@ -6,6 +6,8 @@
     <string name="nav_permissions">权限</string>
 
     <string name="home_title">SelecT</string>
+    <string name="home_garden_greeting">亲爱的阅读者：</string>
+    <string name="home_garden_headline">翻译如翻页</string>
     <string name="home_subtitle">输入或选中文字，快速得到中文译文。</string>
     <string name="home_status_ready">全局选中模式已就绪</string>
     <string name="home_status_manual">当前为手动翻译模式</string>

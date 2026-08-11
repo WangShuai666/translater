@@ -344,13 +344,13 @@ class SelectionAccessibilityService : AccessibilityService() {
 
         val sourceView = TextView(context).apply {
             text = sourceText
-            setTextColor(Color.rgb(71, 85, 105))
+            setTextColor(Color.rgb(74, 90, 77))
             textSize = 13f
             maxLines = 3
         }
         val translationView = TextView(context).apply {
             text = translatedText
-            setTextColor(Color.rgb(15, 23, 42))
+            setTextColor(Color.rgb(32, 53, 43))
             textSize = 17f
             typeface = Typeface.DEFAULT_BOLD
             maxLines = 6
@@ -359,9 +359,9 @@ class SelectionAccessibilityService : AccessibilityService() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(10), dp(14), dp(10))
             background = GradientDrawable().apply {
-                cornerRadius = dp(12).toFloat()
-                setColor(Color.rgb(240, 253, 250))
-                setStroke(dp(1), Color.rgb(15, 118, 110))
+                cornerRadius = dp(8).toFloat()
+                setColor(Color.rgb(243, 245, 238))
+                setStroke(dp(1), Color.rgb(82, 122, 90))
             }
             elevation = dp(6).toFloat()
             val header = LinearLayout(context).apply {
@@ -369,7 +369,7 @@ class SelectionAccessibilityService : AccessibilityService() {
                 addView(
                     TextView(context).apply {
                         text = "译文"
-                        setTextColor(Color.rgb(15, 118, 110))
+                        setTextColor(Color.rgb(82, 122, 90))
                         textSize = 13f
                         typeface = Typeface.DEFAULT_BOLD
                     },
@@ -379,7 +379,7 @@ class SelectionAccessibilityService : AccessibilityService() {
                     TextView(context).apply {
                         text = "X"
                         gravity = Gravity.CENTER
-                        setTextColor(Color.rgb(100, 116, 139))
+                        setTextColor(Color.rgb(108, 124, 112))
                         textSize = 16f
                         setPadding(dp(10), dp(2), 0, 0)
                         setOnClickListener { removeResultOverlay() }
